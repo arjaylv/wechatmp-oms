@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+  <context:annotation-config />
+  <context:property-placeholder location="classpath:*.properties" />
+
+  <context:component-scan base-package="com.sftxy.wechatmp.irs">
+    <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+  </context:component-scan>
+
+  <bean id="mapper" class="org.codehaus.jackson.map.ObjectMapper" />
+
+  <bean id="messageConverterClient" class="com.sftxy.wechatmp.sdk.client.MessageConverterClient" />
+
+  <bean id="processors" class="java.util.HashMap">
+    <constructor-arg>
+      <map>
+        <entry key="text" value-ref="textProcessor" />
+        <entry key="event" value-ref="eventProcessor" />
+        <entry key="image" value-ref="defaultProcessor" />
+        <entry key="location" value-ref="defaultProcessor" />
+        <entry key="link" value-ref="defaultProcessor" />
+        <entry key="voice" value-ref="defaultProcessor" />
+        <entry key="video" value-ref="defaultProcessor" />
+        <entry key="customerService" value-ref="defaultProcessor" />
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <bean id="textResolverChain" class="com.sftxy.wechatmp.framework.resolver.ResolverChain">
+    <constructor-arg>
+       <list>
+        <ref bean="keywordResolver" />
+        <ref bean="defaultResolver" />
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="eventResolvers" class="java.util.HashMap">
+    <constructor-arg>
+      <map>
+        <entry key="subscribe" value-ref="subscribeResolvers" />
+        <entry key="unsubscribe" value-ref="unsubscribeResolver" />
+        <entry key="VIEW" value-ref="viewResolver" />
+        <entry key="CLICK" value-ref="clickResolverRouter" />
+        <entry key="LOCATION" value-ref="eventLocationResolver" />
+        <entry key="SCAN" value-ref="scanResolver" />
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <bean id="subscribeResolvers" class="com.sftxy.wechatmp.framework.resolver.ResolverChain">
+    <constructor-arg>
+      <list>
+        <ref bean="subscriberResolver" />
+        <ref bean="defaultResolver" />
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="clickResolvers" class="java.util.HashMap">
+    <constructor-arg>
+      <map>
+        <entry key="key_1" value-ref="key1Resolver" />
+        <entry key="key_2" value-ref="key2Resolver" />
+      </map>
+    </constructor-arg>
+  </bean>
+
+</beans>
